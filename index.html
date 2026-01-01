@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Sentiment Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 { text-align: center; color: #333; }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+            font-family: inherit;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #45a049; }
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none; /* Hidden by default */
+            text-align: center;
+        }
+        .positive { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .negative { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎬 Sentiment Analyzer</h1>
+    <p>Enter a movie review below to check if it's Positive or Negative.</p>
+    
+    <textarea id="reviewInput" placeholder="Type your review here (e.g., 'The plot was amazing but the acting was stiff...')"></textarea>
+    
+    <button onclick="analyzeSentiment()">Analyze Review</button>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+    async function analyzeSentiment() {
+        const reviewText = document.getElementById('reviewInput').value;
+        const resultDiv = document.getElementById('result');
+        
+        // basic validation
+        if (!reviewText.trim()) {
+            alert("Please enter a review first!");
+            return;
+        }
+
+        // Show loading state
+        resultDiv.style.display = 'block';
+        resultDiv.className = '';
+        resultDiv.style.background = '#eee';
+        resultDiv.innerText = "Analyzing...";
+
+        try {
+            // Send POST request to your local Python API
+            const response = await fetch('http://127.0.0.1:8000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ review: reviewText }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Display Result
+            resultDiv.innerHTML = `
+                <strong>Sentiment:</strong> ${data.sentiment}<br>
+                <strong>Confidence:</strong> ${data.confidence}
+            `;
+            
+            // Apply styling based on sentiment
+            if (data.sentiment === 'Positive') {
+                resultDiv.className = 'positive';
+            } else {
+                resultDiv.className = 'negative';
+            }
+
+        } catch (error) {
+            resultDiv.innerText = "Error connecting to the model. Is the backend running?";
+            resultDiv.className = 'negative';
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>

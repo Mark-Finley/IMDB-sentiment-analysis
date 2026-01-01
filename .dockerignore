@@ -1,0 +1,9 @@
+venv
+sentiment_model
+__pycache__
+.git
+.gitignore
+.ipynb_checkpoints
+.env
+.DS_Store
+*.pyc
