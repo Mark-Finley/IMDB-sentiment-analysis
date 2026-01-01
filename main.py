@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # 2. Load or download the model (once on startup)
-MODEL_ID = os.environ.get("MODEL_ID", "Vividvanilla/BERT-sentiment")
+MODEL_ID = os.environ.get("MODEL_ID", "distilbert-base-uncased-finetuned-sst-2-english")
 MODEL_PATH = Path(os.environ.get("MODEL_PATH", "./sentiment_model"))
 
 
